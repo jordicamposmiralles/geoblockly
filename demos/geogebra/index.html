@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>JORDI's DEMO: Controlling Geogebra from Blockly</title>
+  <script type="text/javascript" src="../../blockly_compressed.js"></script>
+  <script type="text/javascript" src="../../blocks_compressed.js"></script>
+  <script type="text/javascript" src="../../blocks/geogebra.js"></script>
+  <script type="text/javascript" src="../../javascript_compressed.js"></script>
+  <script type="text/javascript" src="../../generators/javascript/geogebra.js"></script>
+  <script type="text/javascript" src="../../msg/js/en.js"></script>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+  </style>
+
+
+<!-- GEOGEBRA (ini) -->
+
+        <link rel="stylesheet" type="text/css" href="https://tube.geogebra.org/css/worksheet.simpleggb.css?v=1.30" />
+        <link href="https://tube.geogebra.org/files/appComp/shared/mathquillggb.css?v=1.30" media="screen" rel="stylesheet" type="text/css" />
+<link href="https://tube.geogebra.org/css/compiled.css?v=1.30" media="screen" rel="stylesheet" type="text/css" />
+                    <link rel="shortcut icon" type="image/x-icon" href="//static.geogebra.org/static/img/favicon.ico" />
+        
+        <!-- worksheet general is needed for resizing the wsf-scroller!! don't remove! -->
+        <script type="text/javascript" src="https://tube.geogebra.org/scripts/jquery.js?v=1.30"></script>
+        
+<script type="text/javascript">
+    //<![CDATA[
+                var ga_domainName = 'geogebratube.org';
+        var ga_userId = 392849;
+    //]]>
+</script>
+<script type="text/javascript" src="https://tube.geogebra.org/scripts/gastats.js?v=1.30"></script>
+
+        
+        <script type="text/javascript">
+    //<![CDATA[
+    
+            var ga_material_id = 277321;
+            gaTrackMaterialView(ga_material_id, GA_MATERIAL_VIEW_SIMPLE);
+
+            $(function() {
+                $("#close-student-view").click(function() {
+                   window.close();
+                });
+            });
+            //]]>
+</script>
+<script type="text/javascript" src="https://tube.geogebra.org/scripts/worksheet/general.js?v=1.30"></script>
+<script type="text/javascript" src="https://tube.geogebra.org/scripts/deployggb.js?v=1.30"></script>
+<script type="text/javascript" src="https://tube.geogebra.org/files/appComp/shared/min.js?v=1.30"></script>
+<script type="text/javascript" src="https://tube.geogebra.org/files/appComp/shared/mathquillggb.js?v=1.30"></script>
+
+<!-- GEOGEBRA (end) -->
+
+</head>
+<body>
+  <h1>Controlling Geogebra from <a href="https://developers.google.com/blockly/">Blockly</a> </h1>
+
+  <p>Concept proof to allow visual programming in Geogebra.</p>
+
+  <p>
+    <button onclick="showCode()">Show JavaScript</button>
+    <button onclick="runCode()">Run JavaScript</button>
+  </p>
+
+  <div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Logic">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean"></block>
+    </category>
+    <category name="Loops">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <block type="math_number">
+            <field name="NUM">10</field>
+          </block>
+        </value>
+      </block>
+      <block type="controls_whileUntil"></block>
+    </category>
+    <category name="Math">
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+      <block type="math_single"></block>
+    </category>
+    <category name="Text">
+      <block type="text"></block>
+      <block type="text_length"></block>
+      <block type="text_print"></block>
+    </category>
+    <category name="Geogebra">
+      <block type="geogebra_circle"></block>
+    </category>
+  </xml>
+
+  <xml id="startBlocks" style="display: none">
+    <block type="controls_if" inline="false" x="20" y="20">
+      <mutation else="1"></mutation>
+      <value name="IF0">
+        <block type="logic_compare" inline="true">
+          <field name="OP">EQ</field>
+          <value name="A">
+            <block type="math_arithmetic" inline="true">
+              <field name="OP">MULTIPLY</field>
+              <value name="A">
+                <block type="math_number">
+                  <field name="NUM">6</field>
+                </block>
+              </value>
+              <value name="B">
+                <block type="math_number">
+                  <field name="NUM">7</field>
+                </block>
+              </value>
+            </block>
+          </value>
+          <value name="B">
+            <block type="math_number">
+              <field name="NUM">42</field>
+            </block>
+          </value>
+        </block>
+      </value>
+      <statement name="DO0">
+        <block type="text_print" inline="false">
+          <value name="TEXT">
+            <block type="text">
+              <field name="TEXT">Don't panic</field>
+            </block>
+          </value>
+        </block>
+      </statement>
+      <statement name="ELSE">
+        <block type="text_print" inline="false">
+          <value name="TEXT">
+            <block type="text">
+              <field name="TEXT">Panic</field>
+            </block>
+          </value>
+        </block>
+      </statement>
+    </block>
+  </xml>
+
+  <script>
+    Blockly.inject(document.getElementById('blocklyDiv'),
+        {toolbox: document.getElementById('toolbox')});
+    Blockly.Xml.domToWorkspace(Blockly.mainWorkspace,
+        document.getElementById('startBlocks'));
+
+    function showCode() {
+      // Generate JavaScript code and display it.
+      Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+      var code = Blockly.JavaScript.workspaceToCode();
+      alert(code);
+    }
+
+    function runCode() {
+      // Generate JavaScript code and run it.
+      window.LoopTrap = 1000;
+      Blockly.JavaScript.INFINITE_LOOP_TRAP =
+          'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
+      var code = Blockly.JavaScript.workspaceToCode();
+      Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+      try {
+        eval(code);
+      } catch (e) {
+        alert(e);
+      }
+    }
+  </script>
+
+
+<!-- GEOGEBRA (ini) -->
+
+<div class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <div style="direction: ltr">
+
+        
+        <div class="wsf-ws-scroller">
+            <div class="wsf-wrapper">
+
+                <h1 itemprop="headline" class="wsf-worksheet-title">
+								GeoBlocky-HolaMon				</h1>
+                
+
+<script type="text/javascript">
+    var parameters = {"id":"ggbApplet","width":800,"height":600,"showToolBar":true,"showMenuBar":true,"showAlgebraInput":true,"showResetIcon":true,"enableLabelDrags":true,"enableShiftDragZoom":true,"enableRightClick":true,"showToolBarHelp":false,"errorDialogsActive":true,"useBrowserForJS":false,"language":"en","isPreloader":false,"screenshotGenerator":false,"preventFocus":false,"fixApplet":false};
+
+    parameters.appletOnLoad = function() {
+        if (typeof $ === "function" && window.GGBT_wsf_view !== undefined) {
+            var container =  $("#applet_container_277321");
+            window.GGBT_wsf_view.postProcessApplet(container);
+        }
+    };
+    /** is3D=is 3D applet using 3D view, AV=Algebra View, SV=Spreadsheet View, CV=CAS View, EV2=Graphics View 2, CP=Construction Protocol, PC=Probability Calculator, DA=Data Analysis, FI=Function Inspector, PV=Python, macro=Macro View */
+    var views = {"is3D":false,"AV":false,"SV":false,"CV":false,"EV2":false,"CP":false,"PC":false,"DA":false,"FI":false,"PV":false,"macro":false};
+    var applet = new GGBApplet('5.0', parameters, views);
+
+    applet.setJNLPBaseDir('https://tube.geogebra.org/webstart/');
+    applet.setGiacJSURL('https://tube.geogebra.org/webstart/4.4/giac.js');
+    var appletType_277321 = 'auto';
+
+    window.onload = function() {
+        applet.inject('applet_container', 'auto');
+    }
+</script>
+
+    <div style="display:block;min-width:800px;min-height:600px" id="applet_container">
+    </div>
+
+                				                <div class="footer">
+                    <a href="/material/show/id/htAwd0es">Creat amb GeoGebra</a> &#0150;
+
+                    <span itemprop="creator" itemscope itemtype="http://schema.org/Person">Compartit per <a href="/user/profile/id/392849"><span class="notranslate" itemprop="name">Jordi Campos Miralles</span></a></span>
+            <div class="view_as_separator_Java" style="display:none"> &#0150; </div>
+            <a class="view_as_Java" href="/student/mhtAwd0es?mobile=false" onclick="applet.inject('applet_container', 'preferJava'); applet.toggleAppletTypeControls(''); return false;" style="display:none">Veure l'Applet com Java</a>
+            <div class="view_as_separator_HTML5" style="display:none"> &#0150; </div>
+            <a class="view_as_HTML5" href="/student/mhtAwd0es?mobile=true" onclick="applet.inject('applet_container', 'preferHTML5'); applet.toggleAppletTypeControls(''); return false;" style="display:none">Veure l'Applet com HTML5</a>
+                <script type="text/javascript">
+                    var tmpOnLoad = window.onload;
+                    window.onload = function() {
+                        if (typeof tmpOnLoad == "function")
+                                tmpOnLoad();
+                            applet.toggleAppletTypeControls("");
+                    }
+                </script>
+                                </div>
+				            </div>
+        </div>
+
+        
+    </div>
+
+</div>
+
+<!-- GEOGEBRA (end) -->
+
+</body>
+</html>
