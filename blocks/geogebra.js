@@ -39,8 +39,8 @@ Blockly.Blocks['geogebra_segment'] = {
     this.setColour(290);
     this.appendDummyInput()
         .appendField(new Blockly.FieldImage("http://wiki.geogebra.org/uploads/e/eb/Tool_Circle_Center_Radius.gif", 15, 15, "Cercle"))
-        .appendField("Circle:")
-        .appendField("center");
+        .appendField("Segment:")
+        .appendField("Pendent de fer");
     this.appendValueInput("Test")
         .setCheck("Number")
         .appendField("x");
